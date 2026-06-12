@@ -42,8 +42,9 @@ No. Themes apply styles while Desktop is running: You can clear the skin/return 
 No. This is a small independent/unofficial project that is not affiliated with, endorsed by, sponsored by, or approved by OpenAI.
 
 <b>Why did you make this?</b> Because I hated the current lack of choices with ChatGPT Desktop. 
+
 <b>Was this created with AI?</b> Yes, this is technically slop as I learn/play with LLM's.
 
-This is currently a work in progress.
+This is currently a very early work in progress.
 
 Created by - [piratemoo](https://www.piratemoo.com) © 2026
