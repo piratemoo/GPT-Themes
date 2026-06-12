@@ -1,3 +1,5 @@
+<img src="https://github.com/piratemoo/GPT-Themes/blob/main/logo.png" alt="Logo" width="75">
+
 <b>GPT Themes</b> is a Windows based skinning/customization tool for the ChatGPT Desktop app. It lets you choose themes, adjust colors/transparency, choose fonts, use local images for backgrounds and apply visual skins while ChatGPT Desktop is running. 
 
 This is a small independent, unofficial customization tool: It is not affiliated with, endorsed by, sponsored by, or approved by OpenAI. ChatGPT and OpenAI are trademarks of OpenAI.
@@ -10,9 +12,7 @@ What it doesn't do:
 * Install executable theme plugins
 * Execute code from imported theme files
 
-```md
-![GPT Themes interface](docs/images/gpt-themes-interface.png)
-```
+<img src="https://github.com/piratemoo/GPT-Themes/blob/main/screenshot.png" alt="screenshot" width="600">
 
 Appearance Controls
 | Control      | What it does                                                                                           |
