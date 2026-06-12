@@ -1,50 +1,70 @@
-<img src="https://github.com/piratemoo/GPT-Themes/blob/main/logo.png" alt="Logo" width="75">
+<div align="left">
+  <img src="./logo-readme.png" alt="GPT Themes logo" width="75">
+  <br>
+  <strong>GPT Themes</strong>
+  <br>
 
-<b>GPT Themes</b> is a Windows based skinning/customization tool for the ChatGPT Desktop app. It lets you choose themes, adjust colors/transparency, choose fonts, use local images for backgrounds and apply visual skins while ChatGPT Desktop is running. 
+[![stars](https://img.shields.io/github/stars/piratemoo/GPT-Themes?style=flat-square)](https://github.com/piratemoo/GPT-Themes/stargazers)
+[![forks](https://img.shields.io/github/forks/piratemoo/GPT-Themes?style=flat-square)](https://github.com/piratemoo/GPT-Themes/forks)
+[![license](https://img.shields.io/github/license/piratemoo/GPT-Themes?style=flat-square)](https://github.com/piratemoo/GPT-Themes/blob/main/LICENSE)
+<img src="https://img.shields.io/badge/ChatGPT-74AA9C?style=flat-square&logo=openai&logoColor=white" alt="ChatGPT">
 
-This is a small independent, unofficial customization tool: It is not affiliated with, endorsed by, sponsored by, or approved by OpenAI. ChatGPT and OpenAI are trademarks of OpenAI.
+<sub>
+A small Windows-based skinner for ChatGPT Desktop that lets you customize the app with themes, colors, fonts, backgrounds, and glass effects. Choose built-in themes, adjust colors and transparency, select fonts, use images as backgrounds and apply visual skins while ChatGPT Desktop is running. This is an independent, unofficial customization tool. It is not affiliated with, endorsed by, sponsored by, or approved by OpenAI. ChatGPT and OpenAI are trademarks of OpenAI.</sub><br><br>
 
-What it doesn't do: 
-* Modify OpenAI servers
-* Replace the official ChatGPT app
-* Modify your ChatGPT account
-* Collect chats
-* Install executable theme plugins
-* Execute code from imported theme files
-
+<p>
+  <sub>
+    <strong>What it doesn't do:</strong><br>
+- Modify OpenAI servers<br>
+- Replace the official ChatGPT app<br>
+- Modify your ChatGPT account<br>
+- Collect chats<br>
+- Install executable theme plugins<br>
+- Execute code from imported theme files 
+  </sub> 
+</p>
 <img src="https://github.com/piratemoo/GPT-Themes/blob/main/screenshot.png" alt="screenshot" width="600">
 
-Appearance Controls
-| Control      | What it does                                                                                           |
-| ------------ | ------------------------------------------------------------------------------------------------------ |
-| Layout       | Changes how wide the content area feels: Uses more horizontal space; default keeps the standard width. |
-| Background   | Sets the main background. Choose a base color, pattern, or local image.                                |
-| Panel        | Styles sidebars, menus, and panel areas. Choose a base color or a local image.                         |
-| Glass        | Adjusts transparency. Lower values look more solid; higher values look more glass-like.                |
+<sub><b>Appearance</b></sub>
 
-Connection
-GPT Themes needs ChatGPT Desktop to be running before it can apply a skin. The connection area tells you whether GPT Themes found ChatGPT and gives you tools to fix detection issues.
+<table>
+  <tr>
+    <td><sub><strong>Layout</strong></sub></td>
+    <td><sub>Changes how wide the content area feels. Uses more horizontal space; default keeps the standard width.</sub></td>
+  </tr>
+  <tr>
+    <td><sub><strong>Background</strong></sub></td>
+    <td><sub>Sets the main background. Choose a base color, pattern, or local image.</sub></td>
+  </tr>
+  <tr>
+    <td><sub><strong>Panel</strong></sub></td>
+    <td><sub>Styles sidebars, menus, and panel areas. Choose a base color or a local image.</sub></td>
+  </tr>
+</table>
 
-Security and Privacy
+<sub><b>Security/Privacy</b>: GPT Themes customizes ChatGPT Desktop using a local Chromium debugging connection, which is currently required because there is no official theming API. GPT Themes uses a local debugging port, typically: `127.0.0.1:9322` to communicate with ChatGPT Desktop.</sub>
 
-GPT Themes customizes ChatGPT Desktop using a local Chromium debugging connection. This is required because ChatGPT Desktop does not currently provide an official theming API. GPT Themes uses a local debugging port, typically: `127.0.0.1:9322`. This local connection is used to communicate with ChatGPT Desktop.
+<p><sub>
+- Keep the debugging address bound to <code>127.0.0.1</code><br>
+- Don't change it to <code>0.0.0.0</code><br>
+- Don't expose the port to other machines or port-forward it.<br>
+- Don't expose the port over LAN/VPN/container bridges/or remote access tools.<br></sub></p>
 
-* Keep the debugging address bound to `127.0.0.1`.
-* Do not change it to `0.0.0.0`.
-* Do not expose the debugging port to other machines.
-* Do not port-forward the debugging port.
-* Do not expose the port over LAN, VPN, container bridges, or remote access tools.
+<sub><b>Does GPT Themes permanently modify ChatGPT Desktop?</b><br> 
+No. Themes applies styles while ChatGPT is running: You can clear the skin/return it to normal when you close ChatGPT.<br></sub>
+<sub><b>Is this an official OpenAI tool?</b><br>
+No. This is a small independent/unofficial project that is not affiliated with, endorsed by, sponsored by, or approved by OpenAI.<br></sub>
+<sub><b>Why did you make this?</b><br>
+Because I hated the current lack of choices in ChatGPT Desktop, so I figured other people might also.<br></sub>
+<sub><b>Was this created with AI?</b><br>
+Yes, this is technically slop as I learn to play with LLM's.<br></sub> 
 
-<b>Does GPT Themes permanently modify ChatGPT Desktop?</b> 
-No. Themes apply styles while Desktop is running: You can clear the skin/return to a normal appearance on close.
-
-<b>Is this an official OpenAI tool?</b>
-No. This is a small independent/unofficial project that is not affiliated with, endorsed by, sponsored by, or approved by OpenAI.
-
-<b>Why did you make this?</b> Because I hated the current lack of choices with ChatGPT Desktop. 
-
-<b>Was this created with AI?</b> Yes, this is technically slop as I learn/play with LLM's.
-
-This is currently a very early work in progress.
-
-Created by - [piratemoo](https://www.piratemoo.com) © 2026
+<p>
+  <sub>
+    <a href="https://www.piratemoo.com"><img src="https://www.piratemoo.com/assets/images/oastlogo.png" alt="piratemoo logo" width=35" valign="middle"></a>
+    Created by <a href="https://www.piratemoo.com">piratemoo</a> - 2026<br><br>
+<a href="https://x.com/apiratemoo"><img src="https://img.shields.io/badge/X-@piratemoo-000000?style=flat-square&logo=x&logoColor=white" alt="X @apiratemoo" align="left">
+  </a></sub><br>
+<a href="https://www.buymeacoffee.com/piratemoo" align="left">
+  <img src="https://img.shields.io/badge/buy%20me%20a%20coffee-FFDD00?style=flat-square&logo=buy-me-a-coffee&logoColor=black" alt="Buy me a coffee">
+</a>
