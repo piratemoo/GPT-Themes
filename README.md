@@ -44,4 +44,6 @@ No. This is a small independent/unofficial project that is not affiliated with, 
 <b>Why did you make this?</b> Because I hated the current lack of choices with ChatGPT Desktop. 
 <b>Was this created with AI?</b> Yes, this is technically slop as I learn/play with LLM's.
 
-Created by - [@piratemoo](https://piratemoo.com) © 2026
+This is currently a work in progress.
+
+Created by - [piratemoo](https://www.piratemoo.com) © 2026
