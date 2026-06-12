@@ -1,5 +1,7 @@
 namespace ChatGptDesktopSkinner;
 
+// Local app preferences persisted under the user's profile. Keep this limited
+// to UI/theme state; do not store tokens, credentials, or chat transcripts here.
 internal sealed class SkinnerSettings
 {
 	public string ThemeId { get; set; }

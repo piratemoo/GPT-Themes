@@ -21,6 +21,8 @@ internal static class Program
 	private static void Main()
 	{
 		bool createdNew;
+		// Keep one editor instance per Windows user session. A second launch focuses the
+		// existing window instead of racing settings writes or duplicate apply attempts.
 		using Mutex obj = new Mutex(initiallyOwned: true, "Local\\ChatGptDesktopSkinner.SingleInstance", out createdNew);
 		if (!createdNew)
 		{
@@ -57,6 +59,8 @@ internal static class Program
 
 	private static void FocusExistingInstance()
 	{
+		// This is best-effort UX only; failures should not block app startup or leave
+		// a half-open duplicate instance behind.
 		try
 		{
 			Process currentProcess = Process.GetCurrentProcess();

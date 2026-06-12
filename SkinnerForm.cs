@@ -170,6 +170,8 @@ internal sealed class SkinnerForm : Form
 
 	private const float SectionHeaderFontSize = 10.5f;
 
+	// Imported theme/image files are local visual inputs. Keep size limits small so
+	// previews and CSS data URLs cannot balloon memory or become a data transport.
 	private const int MaxImageBytes = 8388608;
 
 	private const int MaxThemeFileBytes = 1048576;
@@ -1016,6 +1018,8 @@ internal sealed class SkinnerForm : Form
 
 	private SkinnerSettings ReadSettings()
 	{
+		// Settings are local preferences only. Treat corrupt or unexpected data as a
+		// reset-to-default case instead of surfacing raw file contents to the UI.
 		try
 		{
 			string path = SettingsPath();
@@ -1033,6 +1037,7 @@ internal sealed class SkinnerForm : Form
 
 	private void SaveSettings()
 	{
+		// Persist theme/editor preferences, never credentials, API tokens, or chat text.
 		try
 		{
 			Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath()));
@@ -3019,6 +3024,8 @@ internal sealed class SkinnerForm : Form
 
 	private void SaveThemeDocument(string path, bool includeLocalImagePaths)
 	{
+		// Saved themes are declarative visual JSON. Local image paths are included only
+		// for personal backups, not for portable/executable behavior.
 		Theme theme = CurrentTheme().Clone(CurrentTheme().Id, CurrentTheme().Name);
 		ThemeDocument themeDocument = new ThemeDocument();
 		themeDocument.Format = "gpt-themes.theme";
@@ -3036,6 +3043,8 @@ internal sealed class SkinnerForm : Form
 
 	private SkinnerSettings ExportSettingsSnapshot(bool includeLocalImagePaths)
 	{
+		// Shareable exports strip machine-specific executable and image paths unless the
+		// user explicitly chooses a local backup that can reference their own files.
 		SkinnerSettings skinnerSettings = CurrentSettingsSnapshot();
 		skinnerSettings.ManualChatGptExePath = "";
 		skinnerSettings.ThemeFilePath = "";
@@ -3055,6 +3064,8 @@ internal sealed class SkinnerForm : Form
 
 	private void ImportTheme()
 	{
+		// Theme import accepts JSON data only; it should never evolve into loading code,
+		// scripts, or executable theme extensions from disk.
 		using OpenFileDialog openFileDialog = new OpenFileDialog();
 		openFileDialog.Filter = "GPT Themes files|*.gpttheme;*.json|All files|*.*";
 		if (openFileDialog.ShowDialog(this) != DialogResult.OK)
@@ -3086,6 +3097,8 @@ internal sealed class SkinnerForm : Form
 
 	private void NormalizeImportedThemeDocument(ThemeDocument doc)
 	{
+		// Clamp imported values before they affect preview or injected CSS. File paths
+		// remain local user-selected strings, and theme text stays bounded visual data.
 		if (!string.IsNullOrEmpty(doc.Format) && !string.Equals(doc.Format, "gpt-themes.theme", StringComparison.OrdinalIgnoreCase))
 		{
 			throw new InvalidOperationException("Unsupported theme file format.");
@@ -3964,6 +3977,8 @@ internal sealed class SkinnerForm : Form
 
 	private ChatGptDetectionResult DetectChatGpt()
 	{
+		// Prefer validated local ChatGPT installs/running processes, and keep the manual
+		// chooser as a fallback rather than trusting arbitrary executable paths first.
 		ChatGptDetectionResult chatGptDetectionResult = new ChatGptDetectionResult();
 		try
 		{
@@ -4033,6 +4048,7 @@ internal sealed class SkinnerForm : Form
 
 	private bool UseDetectedChatGptExe(ChatGptDetectionResult result, string path, string method, string checkMessage)
 	{
+		// Only accepted ChatGPT executables should feed launch and port-ownership checks.
 		if (!IsChatGptExecutablePath(path))
 		{
 			return false;
@@ -4524,6 +4540,8 @@ internal sealed class SkinnerForm : Form
 
 	private static bool IsValidatedChatGptProcess(Process process)
 	{
+		// Process-name alone is not enough; validate the executable path/signature before
+		// killing, focusing, or trusting its localhost debugging listener.
 		if (process == null)
 		{
 			return false;
@@ -4545,6 +4563,8 @@ internal sealed class SkinnerForm : Form
 
 	private void StartChatGptWithPort(int port, string preferredExePath, string preferredAppId, out string launchMethod)
 	{
+		// GPT Themes uses a localhost-bound Chromium DevTools port as a local desktop
+		// skinning workaround. Do not change this to 0.0.0.0 or any LAN-facing address.
 		string arguments = "--remote-debugging-address=127.0.0.1 --remote-debugging-port=" + port;
 		List<string> list = new List<string>();
 		string text = (IsChatGptExecutablePath(preferredExePath) ? preferredExePath : "");
@@ -4965,6 +4985,8 @@ internal sealed class SkinnerForm : Form
 
 	private static bool IsChatGptExecutablePath(string path)
 	{
+		// Keep launch/process checks tied to the real ChatGPT Desktop app, not another
+		// local program named similarly or an unrelated Electron/Chromium process.
 		if (string.IsNullOrWhiteSpace(path))
 		{
 			return false;
@@ -5106,10 +5128,13 @@ internal sealed class SkinnerForm : Form
 
 	private async Task<List<CdpTarget>> GetTargetsAsync(int port)
 	{
+		// Before reading /json/list, verify the listening localhost port belongs to a
+		// validated ChatGPT process so another local service cannot receive skin payloads.
 		if (!IsPortOwnedByValidatedChatGptProcess(port))
 		{
 			throw new InvalidOperationException("Port " + port + " is not owned by a verified ChatGPT Desktop process. Use Relaunch with Port to start ChatGPT safely on localhost.");
 		}
+		// /json/list enumerates local Chromium DevTools targets. Keep this loopback-only.
 		string url = "http://127.0.0.1:" + port + "/json/list";
 		string json;
 		using (WebClient client = new WebClient())
@@ -5131,6 +5156,7 @@ internal sealed class SkinnerForm : Form
 			return result;
 		}
 		object[] array = data;
+		// Accept only ChatGPT page/webview targets with expected loopback WebSocket URLs.
 		foreach (object obj in array)
 		{
 			if (obj is Dictionary<string, object> map)
@@ -5158,6 +5184,8 @@ internal sealed class SkinnerForm : Form
 
 	private static bool IsPortOwnedByValidatedChatGptProcess(int port)
 	{
+		// This prevents connecting to an unrelated local DevTools-compatible service on
+		// the same port before any WebSocket or Runtime.evaluate call is attempted.
 		foreach (int item in ListeningProcessIdsForPort(port))
 		{
 			try
@@ -5177,6 +5205,8 @@ internal sealed class SkinnerForm : Form
 
 	private static List<int> ListeningProcessIdsForPort(int port)
 	{
+		// netstat is used only to map loopback listeners to local process IDs for the
+		// ChatGPT ownership check; non-loopback endpoints are ignored.
 		List<int> list = new List<int>();
 		try
 		{
@@ -5236,6 +5266,8 @@ internal sealed class SkinnerForm : Form
 
 	private static bool IsChatGptTargetUrl(string targetUrl)
 	{
+		// Reject DevTools targets that are not ChatGPT pages, even if they are exposed
+		// by the same local Chromium debugging endpoint.
 		if (string.IsNullOrWhiteSpace(targetUrl))
 		{
 			return false;
@@ -5254,6 +5286,8 @@ internal sealed class SkinnerForm : Form
 
 	private static bool IsExpectedLocalCdpWebSocket(string webSocketUrl, int expectedPort)
 	{
+		// Refuse arbitrary DevTools WebSockets. Only loopback endpoints on the selected
+		// port and under /devtools/ should be used for ChatGPT skinning.
 		if (!Uri.TryCreate(webSocketUrl, UriKind.Absolute, out var result))
 		{
 			return false;
@@ -5278,6 +5312,8 @@ internal sealed class SkinnerForm : Form
 
 	private async Task SendEvaluateAsync(string webSocketUrl, string expression, int expectedPort)
 	{
+		// Runtime.evaluate is used only to apply local visual CSS to ChatGPT Desktop.
+		// Do not collect chats, send page data elsewhere, or execute imported theme code.
 		if (!IsExpectedLocalCdpWebSocket(webSocketUrl, expectedPort))
 		{
 			throw new InvalidOperationException("Refusing to connect to an unexpected ChatGPT debugging endpoint.");
@@ -5352,6 +5388,8 @@ internal sealed class SkinnerForm : Form
 
 	private string BuildInjectionExpression(string css)
 	{
+		// Serialize CSS into a JavaScript string literal before Runtime.evaluate. The
+		// script owns one style element and only cleans GPT Themes-marked surface fixes.
 		string newValue = _json.Serialize(css);
 		string newValue2 = _json.Serialize("chatgpt-desktop-skinner-style");
 		string text = "\n(() => {\n  const css = __CSS__;\n  const styleId = __STYLE_ID__;\n  if (window.__cgtdsSidebarObserver) {\n    window.__cgtdsSidebarObserver.disconnect();\n  }\n  window.clearTimeout(window.__cgtdsSidebarTimer);\n  const clearFixes = () => {\n    const cleaned = document.querySelectorAll('[data-cgtds-surface-fix]');\n    cleaned.forEach((el) => {\n      ['background','background-color','background-image','background-position','background-repeat','background-size','border','border-color','border-style','border-width','border-radius','box-shadow','outline','overflow','color','pointer-events','position','isolation','z-index','mask-image','-webkit-mask-image','backdrop-filter','-webkit-backdrop-filter','--tw-ring-color','--tw-ring-shadow','--tw-shadow','--tw-shadow-colored'].forEach((name) => el.style.removeProperty(name));\n      el.removeAttribute('data-cgtds-surface-fix');\n    });\n    document.querySelectorAll('header, #page-header, [data-testid*=header], [data-testid*=thread-header], [class*=topbar], [class*=top-bar]').forEach((el) => {\n      ['background','background-color','background-image','position','z-index','min-height','overflow','border-color','box-shadow'].forEach((name) => el.style.removeProperty(name));\n    });\n    return cleaned.length;\n  };\n  let cleanedCount = 0;\n  let style = document.getElementById(styleId);\n  if (!style) {\n    style = document.createElement('style');\n    style.id = styleId;\n    style.dataset.owner = 'chatgpt-desktop-skinner';\n    (document.head || document.documentElement).appendChild(style);\n  }\n  style.textContent = css;\n  document.documentElement.dataset.chatgptDesktopSkinner = 'enabled';\n  cleanedCount += clearFixes();\n  if (window.__cgtdsResizeHandler) {\n    window.removeEventListener('resize', window.__cgtdsResizeHandler);\n  }\n  window.clearTimeout(window.__cgtdsResizeTimer);\n  window.__cgtdsResizeHandler = () => {\n    window.clearTimeout(window.__cgtdsResizeTimer);\n    window.__cgtdsResizeTimer = window.setTimeout(() => {\n      const currentStyle = document.getElementById(styleId);\n      if (currentStyle && currentStyle.textContent !== css) currentStyle.textContent = css;\n    }, 220);\n  };\n  window.addEventListener('resize', window.__cgtdsResizeHandler, { passive: true });\n  const cssCustomValue = (name) => {\n    const escapedName = name.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n    const match = css.match(new RegExp(escapedName + '\\\\s*:\\\\s*([\\\\s\\\\S]*?)\\\\s*!important\\\\s*;'));\n    return match ? match[1].trim() : '';\n  };\n  const panelBackgroundValue = cssCustomValue('--cgtds-panel-background') || 'var(--cgtds-panel-background)';\n\n  const nearDark = (value) => {\n    const m = String(value || '').match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)(?:,\\s*([\\d.]+))?\\)/);\n    if (!m) return false;\n    const a = m[4] == null ? 1 : Number(m[4]);\n    return a > 0.72 && Number(m[1]) < 48 && Number(m[2]) < 48 && Number(m[3]) < 48;\n  };\n  const maxRadius = (style) => Math.max(\n    parseFloat(style.borderTopLeftRadius) || 0,\n    parseFloat(style.borderTopRightRadius) || 0,\n    parseFloat(style.borderBottomRightRadius) || 0,\n    parseFloat(style.borderBottomLeftRadius) || 0\n  );\n  const hasVisibleBorder = (style) => (\n    (parseFloat(style.borderTopWidth) || 0) +\n    (parseFloat(style.borderRightWidth) || 0) +\n    (parseFloat(style.borderBottomWidth) || 0) +\n    (parseFloat(style.borderLeftWidth) || 0)\n  ) > 0;\n  const classText = (el) => String(el.className && typeof el.className === 'string' ? el.className : '').toLowerCase();\n  const inputSelector = 'input, textarea, [contenteditable]:not([contenteditable=false]), [role=textbox], [role=searchbox]';\n  const sidebarSurfaceSelector = '#stage-slideover-sidebar, aside, nav[class*=sidebar], nav[class*=bg-token-sidebar]';\n  const isLikelySidebarSurface = (el) => {\n    if (!el || !el.matches) return false;\n    const classes = classText(el);\n    const rect = el.getBoundingClientRect();\n    if (!rect || rect.width <= 0 || rect.height <= 0) return false;\n    if (el.id === 'stage-slideover-sidebar') return true;\n    if (/(tiny-bar|sidebar-rail|rail-width)/.test(classes) || rect.width <= 96) return false;\n    if (el.matches('aside')) return rect.width >= 160 && rect.height >= Math.max(220, window.innerHeight * 0.45);\n    if (!el.matches('nav')) return false;\n    const leftDocked = rect.left <= 4 || rect.right <= Math.min(420, window.innerWidth * 0.42);\n    const tallEnough = rect.height >= Math.max(220, window.innerHeight * 0.45);\n    return leftDocked && tallEnough && !/(toolbar|header|topbar|menubar|breadcrumb|tab)/.test(classes);\n  };\n  const closestSidebarSurface = (el) => {\n    const surface = el && el.closest ? el.closest(sidebarSurfaceSelector) : null;\n    return isLikelySidebarSurface(surface) ? surface : null;\n  };\n  const mark = (el) => { if (el) el.dataset.cgtdsSurfaceFix = 'true'; };\n  const flat = (el) => {\n    if (!el) return;\n    el.style.setProperty('background', 'transparent', 'important');\n    el.style.setProperty('background-color', 'transparent', 'important');\n    el.style.setProperty('background-image', 'none', 'important');\n    el.style.setProperty('mask-image', 'none', 'important');\n    el.style.setProperty('-webkit-mask-image', 'none', 'important');\n    el.style.setProperty('border', '0 none transparent', 'important');\n    el.style.setProperty('border-color', 'transparent', 'important');\n    el.style.setProperty('border-style', 'none', 'important');\n    el.style.setProperty('border-width', '0px', 'important');\n    el.style.setProperty('box-shadow', 'none', 'important');\n    el.style.setProperty('outline', 'none', 'important');\n    el.style.setProperty('--tw-ring-color', 'transparent', 'important');\n    el.style.setProperty('--tw-ring-shadow', '0 0 #0000', 'important');\n    el.style.setProperty('--tw-shadow', '0 0 #0000', 'important');\n    el.style.setProperty('--tw-shadow-colored', '0 0 #0000', 'important');\n    mark(el);\n  };\n  const stripBox = (el) => {\n    if (!el) return;\n    flat(el);\n    el.style.setProperty('border', '0 none transparent', 'important');\n    el.style.setProperty('border-color', 'transparent', 'important');\n    el.style.setProperty('border-style', 'none', 'important');\n    el.style.setProperty('border-width', '0px', 'important');\n    el.style.setProperty('border-radius', '0px', 'important');\n    el.style.setProperty('box-shadow', 'none', 'important');\n    el.style.setProperty('outline', 'none', 'important');\n  };\n  const makePill = (el) => {\n    if (!el) return;\n    el.style.setProperty('background', 'var(--cgtds-composer-background)', 'important');\n    el.style.setProperty('background-color', 'var(--composer-surface)', 'important');\n    el.style.setProperty('color', 'var(--text-primary)', 'important');\n    el.style.setProperty('border', '0 none transparent', 'important');\n    el.style.setProperty('border-color', 'transparent', 'important');\n    el.style.setProperty('border-style', 'none', 'important');\n    el.style.setProperty('border-width', '0px', 'important');\n    el.style.setProperty('border-radius', '999px', 'important');\n    el.style.setProperty('box-shadow', 'none', 'important');\n    el.style.setProperty('backdrop-filter', 'var(--cgtds-composer-blur)', 'important');\n    el.style.setProperty('-webkit-backdrop-filter', 'var(--cgtds-composer-blur)', 'important');\n    el.style.setProperty('outline', 'none', 'important');\n    el.style.setProperty('overflow', 'visible', 'important');\n    el.querySelectorAll('button, [role=\"button\"], input, textarea, [contenteditable], [role=\"textbox\"], [role=\"searchbox\"], span, div, label').forEach((child) => {\n      if (skip.has(child.tagName)) return;\n      child.style.setProperty('background', 'transparent', 'important');\n      child.style.setProperty('background-color', 'transparent', 'important');\n      child.style.setProperty('background-image', 'none', 'important');\n      child.style.setProperty('color', 'var(--text-primary)', 'important');\n      child.style.setProperty('border', '0 none transparent', 'important');\n      child.style.setProperty('box-shadow', 'none', 'important');\n      child.style.setProperty('outline', 'none', 'important');\n      child.style.setProperty('--tw-ring-color', 'transparent', 'important');\n      child.style.setProperty('--tw-ring-shadow', '0 0 #0000', 'important');\n    });\n    mark(el);\n  };\n  const makeSearchPill = (el) => {\n    if (!el) return;\n    el.style.setProperty('background', 'var(--cgtds-search-background)', 'important');\n    el.style.setProperty('background-color', 'var(--cgtds-search-surface)', 'important');\n    el.style.setProperty('color', 'var(--text-primary)', 'important');\n    el.style.setProperty('border', '0 none transparent', 'important');\n    el.style.setProperty('border-color', 'transparent', 'important');\n    el.style.setProperty('border-style', 'none', 'important');\n    el.style.setProperty('border-width', '0px', 'important');\n    el.style.setProperty('border-radius', '999px', 'important');\n    el.style.setProperty('box-shadow', 'none', 'important');\n    el.style.setProperty('backdrop-filter', 'var(--cgtds-search-blur)', 'important');\n    el.style.setProperty('-webkit-backdrop-filter', 'var(--cgtds-search-blur)', 'important');\n    el.style.setProperty('outline', 'none', 'important');\n    el.style.setProperty('overflow', 'hidden', 'important');\n    el.querySelectorAll('input, textarea, [contenteditable], [role=\"textbox\"], [role=\"searchbox\"], span, div').forEach((child) => {\n      if (skip.has(child.tagName)) return;\n      child.style.setProperty('background', 'transparent', 'important');\n      child.style.setProperty('background-color', 'transparent', 'important');\n      child.style.setProperty('color', 'var(--text-primary)', 'important');\n      child.style.setProperty('border', '0 none transparent', 'important');\n      child.style.setProperty('box-shadow', 'none', 'important');\n      child.style.setProperty('outline', 'none', 'important');\n    });\n    mark(el);\n  };\n  const makePanelSurface = (el) => {\n    if (!el) return;\n    el.style.setProperty('background', panelBackgroundValue, 'important');\n    el.style.setProperty('background-position', 'center', 'important');\n    el.style.setProperty('background-repeat', 'no-repeat, no-repeat, no-repeat', 'important');\n    el.style.setProperty('background-size', 'cover, cover, auto', 'important');\n    el.style.setProperty('background-position', 'center, center, center', 'important');\n    el.style.setProperty('color', 'var(--text-primary)', 'important');\n    el.style.setProperty('border', '0 none transparent', 'important');\n    el.style.setProperty('border-color', 'transparent', 'important');\n    el.style.setProperty('border-style', 'none', 'important');\n    el.style.setProperty('border-width', '0px', 'important');\n    el.style.setProperty('border-right', '0 none transparent', 'important');\n    el.style.setProperty('border-left', '0 none transparent', 'important');\n    el.style.setProperty('border-radius', '0px', 'important');\n    el.style.setProperty('box-shadow', 'none', 'important');\n    el.style.setProperty('outline', 'none', 'important');\n    el.style.setProperty('backdrop-filter', 'var(--cgtds-panel-blur)', 'important');\n    el.style.setProperty('-webkit-backdrop-filter', 'var(--cgtds-panel-blur)', 'important');\n    el.querySelectorAll(':scope > div').forEach((child) => {\n      child.style.setProperty('background-color', 'transparent', 'important');\n      child.style.setProperty('background-image', 'none', 'important');\n      child.style.setProperty('box-shadow', 'none', 'important');\n      child.style.setProperty('border-color', 'transparent', 'important');\n      mark(child);\n    });\n    mark(el);\n  };\n  const sidebarRowSelector = 'aside a, aside button, aside [role=button], aside [role=link], nav a, nav button, nav [role=button], nav [role=link]';\n  const rowLooksSelected = (el) => {\n    if (!el) return false;\n    const classes = classText(el);\n    return el.hasAttribute('aria-current') ||\n      el.getAttribute('aria-selected') === 'true' ||\n      el.getAttribute('data-active') === 'true' ||\n      el.getAttribute('data-selected') === 'true' ||\n      /(selected|active|current|bg-token-sidebar-surface-secondary|bg-token-sidebar-surface-tertiary)/.test(classes);\n  };\n  const isSidebarActionButton = (el) => {\n    if (!el || !el.matches || !el.matches('button,[role=button]')) return false;\n    if (el.matches('[aria-label=\"Search chats\"]')) return false;\n    const rect = el.getBoundingClientRect();\n    const copy = (el.innerText || el.textContent || '').trim();\n    const hasIcon = !!el.querySelector('svg');\n    const compact = rect && rect.width > 0 && rect.height > 0 && rect.width <= 76 && rect.height <= 46;\n    const labelledIcon = !!(el.getAttribute('aria-label') || el.getAttribute('title')) && hasIcon;\n    return hasIcon && compact && (copy.length === 0 || labelledIcon);\n  };\n  const fixSidebarRows = () => {\n    let count = 0;\n    document.querySelectorAll(sidebarRowSelector).forEach((row) => {\n      const inSidebar = !!closestSidebarSurface(row);\n      if (!inSidebar) return;\n      const actionButton = isSidebarActionButton(row);\n      row.style.setProperty('border', '0 none transparent', 'important');\n      row.style.setProperty('border-color', 'transparent', 'important');\n      row.style.setProperty('box-shadow', 'none', 'important');\n      row.style.setProperty('outline', 'none', 'important');\n      row.style.setProperty('color', 'var(--text-primary)', 'important');\n      row.style.setProperty('pointer-events', 'auto', 'important');\n      row.style.setProperty('position', 'relative', 'important');\n      row.style.setProperty('z-index', '2', 'important');\n      row.style.setProperty('--tw-ring-color', 'transparent', 'important');\n      row.style.setProperty('--tw-ring-shadow', '0 0 #0000', 'important');\n      row.style.setProperty('--tw-shadow', '0 0 #0000', 'important');\n      row.style.setProperty('--tw-shadow-colored', '0 0 #0000', 'important');\n      if (actionButton) {\n        row.style.removeProperty('background');\n        row.style.removeProperty('background-color');\n        row.style.removeProperty('background-image');\n        row.style.setProperty('border-radius', '8px', 'important');\n        row.style.setProperty('isolation', 'isolate', 'important');\n      } else if (rowLooksSelected(row)) {\n        row.style.setProperty('background', 'var(--cgtds-sidebar-selected-background)', 'important');\n        row.style.setProperty('background-color', 'var(--cgtds-sidebar-selected-surface)', 'important');\n      } else {\n        row.style.removeProperty('background');\n        row.style.removeProperty('background-color');\n        row.style.removeProperty('background-image');\n      }\n      row.querySelectorAll('div, span, p').forEach((child) => {\n        if (skip.has(child.tagName)) return;\n        const childStyle = getComputedStyle(child);\n        const childClasses = classText(child);\n        if (nearDark(childStyle.backgroundColor) || /(bg-black|bg-gray-8|bg-gray-9|bg-neutral-8|bg-neutral-9|bg-\\[|dark:bg)/.test(childClasses)) {\n          child.style.setProperty('background', 'transparent', 'important');\n          child.style.setProperty('background-color', 'transparent', 'important');\n          child.style.setProperty('background-image', 'none', 'important');\n        }\n        child.style.setProperty('border-color', 'transparent', 'important');\n        child.style.setProperty('box-shadow', 'none', 'important');\n        child.style.setProperty('outline', 'none', 'important');\n        child.style.setProperty('color', 'var(--text-primary)', 'important');\n        child.style.setProperty('pointer-events', 'auto', 'important');\n      });\n      mark(row);\n      count++;\n    });\n    return count;\n  };\n  const flattenPillChildren = (pill) => {\n    if (!pill || !pill.querySelectorAll) return;\n    pill.querySelectorAll('div, span, label').forEach((child) => {\n      if (child === pill) return;\n      const cr = child.getBoundingClientRect();\n      if (!cr || cr.width <= 0 || cr.height <= 0) return;\n      child.style.setProperty('border', '0 none transparent', 'important');\n      child.style.setProperty('border-color', 'transparent', 'important');\n      child.style.setProperty('border-style', 'none', 'important');\n      child.style.setProperty('border-width', '0px', 'important');\n      child.style.setProperty('border-radius', '0px', 'important');\n      child.style.setProperty('box-shadow', 'none', 'important');\n      child.style.setProperty('outline', 'none', 'important');\n      child.style.setProperty('--tw-ring-color', 'transparent', 'important');\n      child.style.setProperty('--tw-ring-shadow', '0 0 #0000', 'important');\n      child.style.setProperty('--tw-shadow', '0 0 #0000', 'important');\n      child.style.setProperty('--tw-shadow-colored', '0 0 #0000', 'important');\n      child.style.setProperty('backdrop-filter', 'none', 'important');\n      child.style.setProperty('-webkit-backdrop-filter', 'none', 'important');\n      child.style.setProperty('background', 'transparent', 'important');\n      child.style.setProperty('background-color', 'transparent', 'important');\n      child.style.setProperty('background-image', 'none', 'important');\n      child.style.setProperty('color', 'var(--text-primary)', 'important');\n      mark(child);\n    });\n    pill.querySelectorAll(inputSelector).forEach(stripBox);\n  };\n  const skip = new Set(['SELECT','OPTION','SVG','PATH','IMG','VIDEO','CANVAS','PRE','CODE']);\n  const applySurfaceFixes = () => {\n  cleanedCount += clearFixes();\n  let fixed = 0;\n\n  document.querySelectorAll(sidebarSurfaceSelector).forEach((el) => {\n    if (isLikelySidebarSurface(el)) makePanelSurface(el);\n  });\n  fixed += fixSidebarRows();\n  document.querySelectorAll('footer, [class*=bottom-0], [class*=from-black], [class*=via-black], [class*=to-black], [class*=to-transparent], [class*=bg-gradient], [class*=gradient-to], [data-testid*=footer]').forEach((el) => {\n    flat(el);\n    el.style.setProperty('border-radius', '0px', 'important');\n    fixed++;\n  });\n\n  document.querySelectorAll('body *').forEach((el) => {\n    const rect = el.getBoundingClientRect();\n    if (!rect || rect.width <= 0 || rect.height <= 0) return;\n    const style = getComputedStyle(el);\n    const classes = classText(el);\n    const labelText = (el.getAttribute('aria-label') || el.getAttribute('placeholder') || '').trim().toLowerCase();\n    const ownText = (el.textContent || '').trim().toLowerCase();\n    const text = labelText || ownText.slice(0, 80);\n    const isInput = el.matches(inputSelector);\n    const inSidebar = !!closestSidebarSurface(el);\n    const hasInput = !!(el.querySelector && el.querySelector(inputSelector));\n    const bgImage = style.backgroundImage || '';\n    const classLooksLikeOverlay = /(bottom-0|bottom-\\[|from-black|via-black|to-black|to-transparent|bg-black|bg-gradient|bg-linear|gradient-to)/.test(classes);\n    const hasGradient = bgImage !== 'none' || classLooksLikeOverlay;\n    const isBottom = rect.bottom >= window.innerHeight - 8 || rect.top >= window.innerHeight - 190 || classes.indexOf('bottom-0') >= 0;\n    const isWideBottomBand = isBottom && rect.width >= Math.max(320, window.innerWidth * 0.36) && rect.height >= 18 && rect.height <= Math.max(220, window.innerHeight * 0.36);\n    const isFullWidthBottomBand = isBottom && rect.width >= window.innerWidth * 0.72 && rect.height <= 150;\n    const actualControl = el.matches('button, ' + inputSelector) || skip.has(el.tagName);\n    const editorChrome = el.matches('header, main, section, [role=main], [role=toolbar], [data-testid*=toolbar], [data-testid*=image], [data-testid*=canvas], [data-testid*=viewer]') || /(toolbar|workspace|viewer|canvas|editor|artifact|modal|popover|bg-token|bg-black|bg-neutral|bg-zinc|bg-stone|bg-gray|dark:bg|top-0|bottom-0)/.test(classes);\n    const isTopHeader = el.matches('header, [data-testid*=header]') || /(topbar|top-bar|top-0|sticky)/.test(classes) && rect.top <= 8 && rect.height <= 120;\n    if (inSidebar && !isInput) return;\n    if (isTopHeader) {\n      el.style.setProperty('pointer-events', 'auto', 'important');\n      return;\n    }\n    const largeChrome = !actualControl &&\n      !isInput &&\n      editorChrome &&\n      rect.width >= Math.max(360, window.innerWidth * 0.42) &&\n      rect.height >= Math.max(180, window.innerHeight * 0.28) &&\n      (maxRadius(style) > 28 || hasVisibleBorder(style) || /(rounded|workspace|viewer|canvas|editor|artifact)/.test(classes));\n\n    if (largeChrome) {\n      stripBox(el);\n      fixed++;\n      return;\n    }\n\n    if (!actualControl && isWideBottomBand && (isFullWidthBottomBand || hasInput || nearDark(style.backgroundColor) || hasGradient)) {\n      flat(el);\n      el.style.setProperty('border-radius', '0px', 'important');\n      fixed++;\n      return;\n    }\n\n    if (!actualControl && !hasInput && editorChrome && rect.width >= 36 && rect.height >= 24 && (nearDark(style.backgroundColor) || hasGradient)) {\n      flat(el);\n      if (rect.width > 180 && rect.height > 36) el.style.setProperty('border-radius', '0px', 'important');\n      fixed++;\n      return;\n    }\n\n    const exactSearch = text === 'search chats' || text === 'search' || labelText === 'search chats' || labelText === 'search';\n    const smallSearch = exactSearch && rect.width > 24 && rect.width < 430 && rect.height > 18 && rect.height <= 72;\n    if (smallSearch) {\n      let pill = el.closest('button,a,[role=button],[role=link],[aria-label=\"Search chats\"]') || el;\n      const pr = pill.getBoundingClientRect();\n      if (pr.height > 76 || pr.width > 430) pill = el;\n      for (let p = pill.parentElement, i = 0; p && i < 3; p = p.parentElement, i++) {\n        const ar = p.getBoundingClientRect();\n        if (ar.width < 430 && ar.height < 82 && !p.matches('aside,nav')) stripBox(p);\n      }\n      makeSearchPill(pill);\n      pill.querySelectorAll('*').forEach((child) => {\n        if (!skip.has(child.tagName)) stripBox(child);\n      });\n      fixed++;\n      return;\n    }\n\n    if (isInput && inSidebar) {\n      stripBox(el);\n      for (let p = el.parentElement, i = 0; p && i < 3; p = p.parentElement, i++) {\n        const pr = p.getBoundingClientRect();\n        if (pr.width < 430 && pr.height < 82 && !p.matches('aside,nav')) stripBox(p);\n      }\n      fixed++;\n      return;\n    }\n\n    if (isInput) {\n      stripBox(el);\n      let p = el.parentElement;\n      let pill = null;\n      const maxPillWidth = Math.min(window.innerWidth - 96, Math.max(520, rect.width + 360));\n      for (let i = 0; p && i < 8; i++, p = p.parentElement) {\n        if (p.matches('main,[role=main],body,html')) break;\n        const pr = p.getBoundingClientRect();\n        if (pr.width >= window.innerWidth * 0.72 && pr.height <= 150) {\n          stripBox(p);\n          continue;\n        }\n        if (pr.width > rect.width + 20 && pr.width <= maxPillWidth && pr.height > rect.height + 8 && pr.height <= 112) {\n          pill = p;\n          continue;\n        }\n        if (pr.height <= 112) stripBox(p);\n      }\n      if (pill) {\n        makePill(pill);\n        flattenPillChildren(pill);\n      }\n      fixed++;\n      return;\n    }\n\n    if (skip.has(el.tagName)) return;\n    if (rect.width < 120 || rect.height < 24) return;\n    if (hasInput && rect.height <= 130) return;\n    if (!editorChrome && !classLooksLikeOverlay && !/(bg-black|bg-gray|bg-neutral|bg-zinc|bg-stone|dark:bg|from-black|to-black|to-transparent)/.test(classes)) return;\n    if (!nearDark(style.backgroundColor) && !hasGradient) return;\n    flat(el);\n    fixed++;\n  });\n  return fixed;\n  };\n  const fixed = applySurfaceFixes();\n  if (window.__cgtdsResizeHandler) {\n    window.removeEventListener('resize', window.__cgtdsResizeHandler);\n  }\n  if (window.__cgtdsSidebarObserver) {\n    window.__cgtdsSidebarObserver.disconnect();\n  }\n  window.__cgtdsSidebarObserver = new MutationObserver(() => {\n    window.clearTimeout(window.__cgtdsSidebarTimer);\n    window.__cgtdsSidebarTimer = window.setTimeout(() => {\n      try {\n        applySurfaceFixes();\n      } catch (_) {\n      }\n    }, 180);\n  });\n  window.__cgtdsSidebarObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'aria-current', 'aria-selected', 'data-active', 'data-selected'] });\n  window.__cgtdsResizeHandler = () => {\n    window.clearTimeout(window.__cgtdsResizeTimer);\n    window.__cgtdsResizeTimer = window.setTimeout(() => {\n      try {\n        const liveStyle = document.getElementById(styleId);\n        if (liveStyle) liveStyle.textContent = css;\n      } catch (_) {\n      }\n    }, 220);\n  };\n  window.addEventListener('resize', window.__cgtdsResizeHandler, { passive: true });\n  return { ok: true, fixed, cleaned: cleanedCount, title: document.title, href: location.href };\n})()";
@@ -5360,6 +5398,8 @@ internal sealed class SkinnerForm : Form
 
 	private string BuildCss(Theme theme, string layout, string backgroundMode, string backgroundValue, int transparency, string backgroundImageDataUrl, string panelImageDataUrl, bool glassSearch, string fontFamily)
 	{
+		// CSS generated here must stay visual-only. Avoid selectors or properties that
+		// interfere with ChatGPT behavior beyond layout/readability fixes for skinning.
 		string text = EnsureReadableText(theme.Text, theme.Bg);
 		string hex = MixHex(text, theme.Panel, 0.38);
 		string panel = theme.Panel;
@@ -5575,6 +5615,8 @@ internal sealed class SkinnerForm : Form
 
 	private static bool TryGetValidatedLocalImageFile(string value, out FileInfo info, out string mimeType, out string error)
 	{
+		// Background images are read from user-selected local files and embedded as CSS
+		// data URLs. Missing or oversized files should fall back without breaking UI.
 		info = null;
 		mimeType = "";
 		error = "";

@@ -1,5 +1,7 @@
 namespace ChatGptDesktopSkinner;
 
+// Theme objects are visual data only. Do not let theme fields become an
+// executable plugin surface or a place to store credentials/chat content.
 internal sealed class Theme
 {
 	public string Id;
