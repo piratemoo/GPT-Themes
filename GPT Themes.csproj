@@ -20,8 +20,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\themes.json">
+    <Content Include="themes.json">
       <Link>themes.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup></Project>
+
