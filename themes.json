@@ -1,0 +1,123 @@
+{
+  "midnight": {
+    "name": "Midnight",
+    "bg": "#0c111d",
+    "panel": "#151c2b",
+    "input": "#101826",
+    "text": "#eff6ff",
+    "accent": "#7cc7ff",
+    "border": "#6f86a5",
+    "user": "#244a69",
+    "pattern": "radial-gradient(circle at 12% 8%, rgb(124 199 255 / 0.2), transparent 32%), radial-gradient(circle at 85% 18%, rgb(142 240 176 / 0.14), transparent 30%)"
+  },
+  "plum": {
+    "name": "Plum",
+    "bg": "#160b22",
+    "panel": "#2a1740",
+    "input": "#211031",
+    "text": "#fff6ff",
+    "accent": "#f4b8ff",
+    "border": "#b985d0",
+    "user": "#5c2c78",
+    "pattern": "radial-gradient(circle at 18% 14%, rgb(244 184 255 / 0.28), transparent 30%), radial-gradient(circle at 82% 18%, rgb(124 199 255 / 0.16), transparent 30%), linear-gradient(135deg, rgb(244 184 255 / 0.08), transparent 38%)"
+  },
+  "sakura": {
+    "name": "Sakura",
+    "bg": "#1c0f1b",
+    "panel": "#3a1c32",
+    "input": "#2b1426",
+    "text": "#fff4fb",
+    "accent": "#ff9fd5",
+    "border": "#e88abf",
+    "user": "#7d315b",
+    "pattern": "radial-gradient(circle at 14% 12%, rgb(255 159 213 / 0.28), transparent 30%), radial-gradient(circle at 82% 18%, rgb(255 226 169 / 0.18), transparent 26%), linear-gradient(145deg, rgb(255 255 255 / 0.08), transparent 40%)"
+  },
+  "bubblegum": {
+    "name": "Bubblegum",
+    "bg": "#171129",
+    "panel": "#2f1f58",
+    "input": "#251848",
+    "text": "#fff7ff",
+    "accent": "#ffa7f3",
+    "border": "#93dbff",
+    "user": "#683b8f",
+    "pattern": "radial-gradient(circle at 15% 16%, rgb(255 167 243 / 0.3), transparent 28%), radial-gradient(circle at 88% 16%, rgb(147 219 255 / 0.22), transparent 30%), radial-gradient(circle at 50% 88%, rgb(255 235 153 / 0.12), transparent 32%)"
+  },
+  "seafoam": {
+    "name": "Seafoam",
+    "bg": "#061817",
+    "panel": "#123b38",
+    "input": "#0d2a28",
+    "text": "#f1fffc",
+    "accent": "#98ffe0",
+    "border": "#72c9bd",
+    "user": "#1d6d68",
+    "pattern": "radial-gradient(circle at 14% 12%, rgb(152 255 224 / 0.25), transparent 30%), radial-gradient(circle at 85% 20%, rgb(139 200 255 / 0.18), transparent 30%), linear-gradient(145deg, rgb(255 255 255 / 0.06), transparent 42%)"
+  },
+  "sunset": {
+    "name": "Sunset Pop",
+    "bg": "#211019",
+    "panel": "#4a2033",
+    "input": "#351726",
+    "text": "#fff8f1",
+    "accent": "#ffca7a",
+    "border": "#ff8fb8",
+    "user": "#823858",
+    "pattern": "radial-gradient(circle at 18% 14%, rgb(255 202 122 / 0.3), transparent 30%), radial-gradient(circle at 82% 16%, rgb(255 143 184 / 0.22), transparent 30%), linear-gradient(150deg, rgb(255 255 255 / 0.07), transparent 42%)"
+  },
+  "jade": {
+    "name": "Jade",
+    "bg": "#091512",
+    "panel": "#10231e",
+    "input": "#0c1b17",
+    "text": "#effcf8",
+    "accent": "#7af2c4",
+    "border": "#5c9584",
+    "user": "#1b5a4a",
+    "pattern": "radial-gradient(circle at 14% 10%, rgb(122 242 196 / 0.2), transparent 32%), radial-gradient(circle at 82% 22%, rgb(126 199 255 / 0.12), transparent 28%)"
+  },
+  "ember": {
+    "name": "Ember",
+    "bg": "#17120f",
+    "panel": "#261a14",
+    "input": "#1d130f",
+    "text": "#fff6ed",
+    "accent": "#ffb36b",
+    "border": "#a97858",
+    "user": "#66391f",
+    "pattern": "radial-gradient(circle at 20% 12%, rgb(255 179 107 / 0.24), transparent 30%), radial-gradient(circle at 80% 18%, rgb(255 118 118 / 0.14), transparent 28%)"
+  },
+  "graphite": {
+    "name": "Graphite",
+    "bg": "#101214",
+    "panel": "#1e2226",
+    "input": "#171a1e",
+    "text": "#f1f4f6",
+    "accent": "#d3dde8",
+    "border": "#7b858f",
+    "user": "#343c46",
+    "pattern": "linear-gradient(135deg, rgb(255 255 255 / 0.06), transparent 42%), radial-gradient(circle at 88% 12%, rgb(211 221 232 / 0.1), transparent 30%)"
+  },
+  "daylight": {
+    "name": "Daylight",
+    "bg": "#f4f7fb",
+    "panel": "#ffffff",
+    "input": "#eef3f8",
+    "text": "#172033",
+    "accent": "#3267d6",
+    "border": "#9ba9bd",
+    "user": "#dbe9ff",
+    "pattern": "radial-gradient(circle at 12% 8%, rgb(50 103 214 / 0.12), transparent 30%), radial-gradient(circle at 88% 14%, rgb(20 142 106 / 0.1), transparent 28%)"
+  },
+  "cupertino": {
+    "name": "Cupertino",
+    "bg": "#0a0d13",
+    "panel": "#171b24",
+    "input": "#202634",
+    "text": "#f7f8fb",
+    "accent": "#0a84ff",
+    "border": "#7d8596",
+    "user": "#d9ecff",
+    "pattern": "linear-gradient(145deg, rgb(255 255 255 / 0.08), transparent 40%), radial-gradient(circle at 18% 12%, rgb(10 132 255 / 0.18), transparent 28%), radial-gradient(circle at 84% 20%, rgb(255 255 255 / 0.09), transparent 26%)"
+  }
+}
